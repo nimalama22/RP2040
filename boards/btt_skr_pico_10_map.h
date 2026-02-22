@@ -19,6 +19,10 @@
   along with grblHAL. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+  BTT SKR Pico 1.0 configuration for grblHAL
+*/
+
 #if N_ABC_MOTORS > 1
 #error "Axis configuration is not supported!"
 #endif
@@ -46,7 +50,7 @@
 #define HAS_BOARD_INIT
 
 // Define step pulse output pins.
-#define STEP_PORT                   GPIO_PIO_1 // Single pin PIO SM
+#define STEP_PORT                   GPIO_PIO_1
 #define X_STEP_PIN                  11
 #define Y_STEP_PIN                  6
 #define Z_STEP_PIN                  19
@@ -64,7 +68,6 @@
 #define Y_ENABLE_PIN                7
 #define Z_ENABLE_PIN                2
 
-// Define ganged axis or A axis step pulse and step direction output pins.
 #if N_ABC_MOTORS > 0
 #define M3_AVAILABLE
 #define M3_STEP_PIN                 14
@@ -80,32 +83,25 @@
 #define Y_LIMIT_PIN                 3
 #define Z_LIMIT_PIN                 25
 
+// --- FIXED AUX MAPPING FOR LASER ---
 #ifdef BOARD_BTT_SKR_PICO_10_HOTWIRE
-#define AUXOUTPUT0_PORT             GPIO_OUTPUT // Spindle PWM
-#define AUXOUTPUT0_PIN              21 // HB PWM
-#define AUXOUTPUT1_PORT             GPIO_OUTPUT // Spindle direction
-#define AUXOUTPUT1_PIN              18 // FAN2 PWM
-#define AUXOUTPUT2_PORT             GPIO_OUTPUT // Spindle enable
-#define AUXOUTPUT2_PIN              17 // FAN1 PWM  
-#define AUXOUTPUT3_PORT             GPIO_OUTPUT // Coolant flood
-#define AUXOUTPUT3_PIN              20 // FAN3 PWM, Laser PWM
-#define AUXOUTPUT4_PORT             GPIO_OUTPUT // Coolant mist
-#define AUXOUTPUT4_PIN              23 // HE PWM
+#define AUXOUTPUT0_PORT             GPIO_OUTPUT
+#define AUXOUTPUT0_PIN              21 
 #else
-#define AUXOUTPUT0_PORT             GPIO_OUTPUT // Spindle PWM
-#define AUXOUTPUT0_PIN              20 // FAN3 PWM, Laser PWM
-#define AUXOUTPUT1_PORT             GPIO_OUTPUT // Spindle direction
-#define AUXOUTPUT1_PIN              18 // FAN2 PWM
-#define AUXOUTPUT2_PORT             GPIO_OUTPUT // Spindle enable
-#define AUXOUTPUT2_PIN              17 // FAN1 PWM  
-#define AUXOUTPUT3_PORT             GPIO_OUTPUT // Coolant flood
-#define AUXOUTPUT3_PIN              21 // HB PWM
-#define AUXOUTPUT4_PORT             GPIO_OUTPUT // Coolant mist
-#define AUXOUTPUT4_PIN              23 // HE PWM
+#define AUXOUTPUT0_PORT             GPIO_OUTPUT 
+#define AUXOUTPUT0_PIN              29 // FIXED: Moved to GPIO 29 (Dedicated Laser PWM Header)
 #endif
 
-// Define driver spindle pins
+#define AUXOUTPUT1_PORT             GPIO_OUTPUT 
+#define AUXOUTPUT1_PIN              18 // FAN2 PWM
+#define AUXOUTPUT2_PORT             GPIO_OUTPUT 
+#define AUXOUTPUT2_PIN              17 // FAN1 PWM  
+#define AUXOUTPUT3_PORT             GPIO_OUTPUT 
+#define AUXOUTPUT3_PIN              20 // FIXED: Moved Fan 3 here (Old Laser Pin)
+#define AUXOUTPUT4_PORT             GPIO_OUTPUT 
+#define AUXOUTPUT4_PIN              23 // HE PWM
 
+// Define driver spindle pins
 #if DRIVER_SPINDLE_ENABLE
 #define SPINDLE_PORT                GPIO_OUTPUT
 #endif
@@ -113,7 +109,7 @@
 #define SPINDLE_ENABLE_PIN          AUXOUTPUT2_PIN 
 #endif
 #if DRIVER_SPINDLE_ENABLE & SPINDLE_PWM
-#define SPINDLE_PWM_PIN             AUXOUTPUT0_PIN
+#define SPINDLE_PWM_PIN             AUXOUTPUT0_PIN // Now correctly points to GPIO 29
 #endif
 #if DRIVER_SPINDLE_ENABLE & SPINDLE_DIR
 #define SPINDLE_DIRECTION_PIN       AUXOUTPUT1_PIN
@@ -133,20 +129,10 @@
 #define AUXINPUT0_PIN               22 // Probe
 #ifndef M3_LIMIT_PIN
 #define AUXINPUT1_PIN               16 // E0 limit
-#define AUXOUTPUT0_PWM_PIN          29 // Servo
 #else
 #if CONTROL_ENABLE & CONTROL_HALT
-#define AUXINPUT1_PIN               29 // Reset/E-Stop (Servo - NOTE: this pin has no input filtering/protection)
-#else
-#define AUXOUTPUT0_PWM_PIN          29 // Servo
+#define AUXINPUT1_PIN               29 
 #endif
-#endif
-
-// Define user-control controls (cycle start, reset, feed hold) input pins.
-#if CONTROL_ENABLE & CONTROL_HALT
-#undef CONTROL_ENABLE
-#define CONTROL_ENABLE              CONTROL_HALT
-#define RESET_PIN                   AUXINPUT1_PIN
 #endif
 
 #if PROBE_ENABLE
